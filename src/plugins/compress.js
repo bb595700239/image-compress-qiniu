@@ -3,7 +3,6 @@
  */
 
 const compressImgSource = (img,maxW,maxH,quality) => {
-
 	const canvas = document.createElement('canvas');
 	let width = img.width;
 	let height = img.height;
@@ -49,25 +48,24 @@ const compressImg = ([...files],maxW,maxH,quality) => {
 
 	let arr = [],promArr = [];
 
-		files.forEach(file => {
-			if (file.type.indexOf("image") == 0) {
-				let reader = new FileReader();
-				reader.readAsDataURL(file);
-				promArr.push(
-					new Promise((resolve, reject) => {
-						reader.onload = (e) => {
-							let image = new Image();
-							image.src = e.target.result;
-							image.onload = () => {
-								compressImgSource(image, maxW, maxH, quality).then(res=>{
-									resolve(res);
-								})
-							}
-						};
-					})
-				)
-			}
-		})
+	files.forEach(file => {
+		if (file.type.indexOf("image") == 0) {
+			let reader = new FileReader();
+			reader.readAsDataURL(file);
+			promArr.push(
+				new Promise((resolve, reject) => {
+					reader.onload = (e) => {
+						let image = new Image();
+						image.src = e.target.result;
+						image.onload = async () => {
+						  let res = await compressImgSource(image, maxW, maxH, quality)
+							resolve(res);
+						}
+					};
+				})
+			)
+		}
+	})
 
 	return promArr
 }

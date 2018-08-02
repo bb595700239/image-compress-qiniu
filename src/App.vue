@@ -37,13 +37,11 @@
       }
     },
     methods: {
-      fileChange(e) {
+	    async fileChange(e) {
         let files = e.target.files || e.dataTransfer.files;
-        Promise.all(compressImg(files,this.maxW,this.maxH,this.quality)).then(res => {
-          this.imgs = this.imgs.concat(res)
-          this.postQiniu()
-
-        })
+        const res = await Promise.all(compressImg(files,this.maxW,this.maxH,this.quality))
+        this.imgs = this.imgs.concat(res)
+        this.postQiniu()
       },
       detele(i) {
         this.imgs.splice(i,1)
