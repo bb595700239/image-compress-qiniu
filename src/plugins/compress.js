@@ -4,11 +4,11 @@
 
 const compressImgSource = (img,maxW,maxH,quality) => {
 
-	let canvas = document.createElement('canvas');
+	const canvas = document.createElement('canvas');
 	let width = img.width;
 	let height = img.height;
-	let max_width = maxW || 640;
-	let max_height = maxH || 640;
+	const max_width = maxW || 640;
+	const max_height = maxH || 640;
 	quality = quality || 1
 
 	if (width > max_width) {
@@ -21,38 +21,32 @@ const compressImgSource = (img,maxW,maxH,quality) => {
 		width = Math.round(width);
 		height = max_height;
 	}
-	canvas.width = width;
-	canvas.height = height;
-	let ctx = canvas.getContext("2d");
+	canvas.width = width
+	canvas.height = height
+	const wh = {width, height}
+	const ctx = canvas.getContext("2d");
 	ctx.drawImage(img, 0, 0, width, height);
 
-	let resBase64, resBlob, imgInfo={base64:{},blob:{}};
+	let resBase64, base64, blob;
 
 	return new Promise((resolve, reject) => {
+		resBase64 = canvas.toDataURL("image/jpeg",quality);
+		base64 = Object.assign({},wh,{res:resBase64})
 
-		resBase64 = canvas.toDataURL("image/jpeg",quality); // 截取canvas对应的jpg图片，并且画质为70%（默认就是70%，可以改变）
-		imgInfo.base64.res = resBase64
-		imgInfo.base64.width = canvas.width
-		imgInfo.base64.height = canvas.height
-
-		canvas.toBlob(blob => {
-			resBlob = blob
-			imgInfo.blob.res = resBlob
-			imgInfo.blob.width = canvas.width
-			imgInfo.blob.height = canvas.height
-			resolve(imgInfo);
+		canvas.toBlob(data => {
+			blob = Object.assign({},wh,{res:data})
+			resolve({base64,blob});
 		}, "image/jpeg", quality)
 	})
-
 }
 
 
-const compressImg = (files,maxW,maxH,quality) => {
+const compressImg = ([...files],maxW,maxH,quality) => {
 	if(typeof FileReader==='undefined'){
 		new Error( '不支持图片上传' );
 		return false;
 	}
-	files = Array.prototype.slice.call(files)
+
 	let arr = [],promArr = [];
 
 		files.forEach(file => {
