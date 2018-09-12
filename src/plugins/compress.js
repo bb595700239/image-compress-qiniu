@@ -2,6 +2,7 @@
  * Created by joubn on 2018/08/01.
  */
 import  MegaPixImage from './megapix/megapix-image'
+import 'blueimp-canvas-to-blob'
 
 const compressImgSource = (img,maxW,maxH,quality) => {
 	const browser = {
@@ -28,7 +29,7 @@ const compressImgSource = (img,maxW,maxH,quality) => {
 	let height = img.height;
 	const max_width = maxW || 640;
 	const max_height = maxH || 640;
-	quality = quality || 1
+	quality = quality || .7
 
 	if (width > max_width) {
 		height *= max_width / width;
@@ -56,7 +57,6 @@ const compressImgSource = (img,maxW,maxH,quality) => {
 	return new Promise((resolve, reject) => {
 		resBase64 = canvas.toDataURL("image/jpeg",quality);
 		base64 = Object.assign({},wh,{res:resBase64})
-
 		canvas.toBlob(data => {
 			blob = Object.assign({},wh,{res:data})
 			resolve({base64,blob});
@@ -82,6 +82,7 @@ const compressImg = ([...files],maxW,maxH,quality) => {
 					reader.onload = (e) => {
 						let image = new Image();
 						image.src = e.target.result;
+						image.crossOrigin = 'anonymous';
 						image.onload = async () => {
 						  let res = await compressImgSource(image, maxW, maxH, quality)
 							resolve(res);
